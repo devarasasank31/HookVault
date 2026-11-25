@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hookvault-postgres
+    environment:
+      POSTGRES_DB: hookvault
+      POSTGRES_USER: hookvault
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hookvault}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hookvault -d hookvault"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hookvault-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hookvault-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DATABASE_URL: jdbc:postgresql://postgres:5432/hookvault
+      DATABASE_USER: hookvault
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-hookvault}
+      JWT_SECRET: ${JWT_SECRET:-change-this-secret-in-production-min-256-bits}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - hookvault-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hookvault-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - hookvault-network
+
+volumes:
+  postgres_data:
+
+networks:
+  hookvault-network:
+    driver: bridge

@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16:///hookvault
+    username: test
+    password: test
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: false
+
+hookvault:
+  jwt:
+    secret: dGVzdC1zZWNyZXQtY2hhbmdlLWluLXByb2R1Y3Rpb24tbWluLTI1Ni1iaXRzLXRlc3Qtc2VjcmV0
+    expiration: 3600000
+    refresh-expiration: 86400000
+  webhook:
+    delivery:
+      timeout: 5000
+      connect-timeout: 2000
+      max-retries: 3
+      retry-delays: 1,2,5
+      concurrent-deliveries: 5
+    ssrf:
+      blocked-ips: []
+      allowed-schemes:
+        - http
+        - https
+      follow-redirects: true
