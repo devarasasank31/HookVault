@@ -539,9 +539,7 @@ HookVault/
 - [ ] OpenTelemetry distributed tracing
 - [ ] Webhook event replay with modified payload
 
-## License
 
-MIT License - see LICENSE file for details.
 
 ## Contributing
 
@@ -553,4 +551,3 @@ MIT License - see LICENSE file for details.
 
 ---
 
-Built with ❤️ for developers who need reliable webhook infrastructure.
