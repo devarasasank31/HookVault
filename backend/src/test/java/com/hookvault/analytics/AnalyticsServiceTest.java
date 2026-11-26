@@ -4,6 +4,7 @@ import com.hookvault.analytics.dto.AnalyticsDashboardResponse;
 import com.hookvault.analytics.dto.EndpointPerformanceResponse;
 import com.hookvault.analytics.dto.VolumeOverTimeResponse;
 import com.hookvault.security.UserPrincipal;
+import com.hookvault.user.User;
 import com.hookvault.event.WebhookEventRepository;
 import com.hookvault.endpoint.WebhookEndpointRepository;
 import com.hookvault.delivery.DeliveryAttemptRepository;
@@ -54,7 +55,8 @@ class AnalyticsServiceTest {
     void getDashboard_shouldReturnAggregatedMetrics() {
         // Given
         UUID userId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        User user = User.builder().id(userId).email("test@example.com").passwordHash("hash").active(true).emailVerified(false).build();
+        UserPrincipal principal = UserPrincipal.create(user);
 
         UUID endpointId = UUID.randomUUID();
 
@@ -65,7 +67,7 @@ class AnalyticsServiceTest {
         when(eventRepository.countByUserIdAndStatus(userId, "DEAD_LETTERED")).thenReturn(2L);
         when(attemptRepository.countByUserIdAndAttemptNumberGreaterThan(userId, 1)).thenReturn(15L);
         when(attemptRepository.getAverageResponseTimeByUserId(userId)).thenReturn(250.5);
-        when(eventRepository.findRecentEventsByUserId(userId, 10)).thenReturn(List.of());
+        when(eventRepository.findRecentEventsByUserId(eq(userId), any())).thenReturn(List.of());
         when(endpointRepository.findByUserIdAndIsActiveTrue(userId)).thenReturn(List.of());
         when(eventRepository.countByUserIdAndStatusAndCreatedAtBetween(any(), any(), any(), any())).thenReturn(0L);
         when(eventRepository.countByUserIdAndCreatedAtBetween(any(), any(), any())).thenReturn(0L);
@@ -89,7 +91,8 @@ class AnalyticsServiceTest {
     void getDashboard_shouldHandleZeroEvents() {
         // Given
         UUID userId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        User user = User.builder().id(userId).email("test@example.com").passwordHash("hash").active(true).emailVerified(false).build();
+        UserPrincipal principal = UserPrincipal.create(user);
 
         when(eventRepository.countByUserId(userId)).thenReturn(0L);
         when(eventRepository.countByUserIdAndStatus(userId, "DELIVERED")).thenReturn(0L);
@@ -98,7 +101,7 @@ class AnalyticsServiceTest {
         when(eventRepository.countByUserIdAndStatus(userId, "DEAD_LETTERED")).thenReturn(0L);
         when(attemptRepository.countByUserIdAndAttemptNumberGreaterThan(userId, 1)).thenReturn(0L);
         when(attemptRepository.getAverageResponseTimeByUserId(userId)).thenReturn(null);
-        when(eventRepository.findRecentEventsByUserId(userId, 10)).thenReturn(List.of());
+        when(eventRepository.findRecentEventsByUserId(eq(userId), any())).thenReturn(List.of());
         when(endpointRepository.findByUserIdAndIsActiveTrue(userId)).thenReturn(List.of());
         when(eventRepository.countByUserIdAndStatusAndCreatedAtBetween(any(), any(), any(), any())).thenReturn(0L);
         when(eventRepository.countByUserIdAndCreatedAtBetween(any(), any(), any())).thenReturn(0L);
@@ -123,13 +126,13 @@ class AnalyticsServiceTest {
                 .name("Test Endpoint")
                 .build();
 
-        when(endpointRepository.findByUserIdAndIsActiveTrue(userId)).thenReturn(List.of(endpoint));
-        when(eventRepository.countByEndpointId(endpointId)).thenReturn(50L);
-        when(eventRepository.countByEndpointIdAndStatus(endpointId, "DELIVERED")).thenReturn(45L);
-        when(eventRepository.countByEndpointIdAndStatus(endpointId, "FAILED")).thenReturn(3L);
-        when(eventRepository.countByEndpointIdAndStatus(endpointId, "PENDING")).thenReturn(2L);
-        when(eventRepository.countByEndpointIdAndStatus(endpointId, "DEAD_LETTERED")).thenReturn(0L);
-        when(attemptRepository.getAverageResponseTimeByEndpointId(endpointId)).thenReturn(180.0);
+        lenient().when(endpointRepository.findByUserIdAndIsActiveTrue(userId)).thenReturn(List.of(endpoint));
+        lenient().when(eventRepository.countByEndpointId(endpointId)).thenReturn(50L);
+        lenient().when(eventRepository.countByEndpointIdAndStatus(endpointId, "DELIVERED")).thenReturn(45L);
+        lenient().when(eventRepository.countByEndpointIdAndStatus(endpointId, "FAILED")).thenReturn(3L);
+        lenient().when(eventRepository.countByEndpointIdAndStatus(endpointId, "PENDING")).thenReturn(2L);
+        lenient().when(eventRepository.countByEndpointIdAndStatus(endpointId, "DEAD_LETTERED")).thenReturn(0L);
+        lenient().when(attemptRepository.getAverageResponseTimeByEndpointId(endpointId)).thenReturn(180.0);
 
         // When - using reflection to test private method
         // We'll test through the public getDashboard method which calls this
