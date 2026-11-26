@@ -1,6 +1,7 @@
 package com.hookvault.config;
 
 import com.hookvault.security.JwtAuthenticationFilter;
+import com.hookvault.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

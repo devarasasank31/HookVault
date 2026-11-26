@@ -3,6 +3,7 @@ package com.hookvault.delivery;
 import com.hookvault.delivery.dto.DeliveryAttemptResponse;
 import com.hookvault.common.ApiResponse;
 import com.hookvault.security.UserPrincipal;
+import com.hookvault.event.EventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -74,7 +75,7 @@ public class DeliveryAttemptController {
         // Verify event ownership
         eventService.getEvent(principal, eventId);
 
-        Page<DeliveryAttempt> attempts = attemptRepository.findByEventIdOrderByAttemptNumberAsc(eventId);
+        Page<DeliveryAttempt> attempts = attemptRepository.findByEventId(eventId, pageable);
         Page<DeliveryAttemptResponse> response = attempts.map(DeliveryAttemptResponse::from);
         return ResponseEntity.ok(ApiResponse.success(response));
     }

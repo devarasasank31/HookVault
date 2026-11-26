@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,8 +49,7 @@ public class AuthService {
         user = userRepository.save(user);
         log.info("User registered: {}", user.getEmail());
 
-        UserPrincipal principal = UserPrincipal.create(user);
-        return buildAuthResponse(principal);
+        return buildAuthResponse(user);
     }
 
     @Transactional(readOnly = true)
@@ -62,9 +62,11 @@ public class AuthService {
         );
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        User user = userRepository.findById(principal.getId())
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
         log.info("User logged in: {}", principal.getEmail());
 
-        return buildAuthResponse(principal);
+        return buildAuthResponse(user);
     }
 
     @Transactional(readOnly = true)
@@ -74,16 +76,21 @@ public class AuthService {
         }
 
         String email = jwtService.extractUsername(refreshToken);
-        UserPrincipal principal = userDetailsService.loadUserByUsername(email);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        UserPrincipal principal = (UserPrincipal) userDetails;
 
         if (!jwtService.isTokenValid(refreshToken, principal)) {
             throw new UnauthorizedException("Refresh token expired or invalid");
         }
 
-        return buildAuthResponse(principal);
+        User user = userRepository.findById(principal.getId())
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
+
+        return buildAuthResponse(user);
     }
 
-    private AuthResponse buildAuthResponse(UserPrincipal principal) {
+    private AuthResponse buildAuthResponse(User user) {
+        UserPrincipal principal = UserPrincipal.create(user);
         String accessToken = jwtService.generateAccessToken(principal);
         String refreshToken = jwtService.generateRefreshToken(principal);
 
@@ -92,7 +99,7 @@ public class AuthService {
                 .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .expiresIn(jwtService.getAccessTokenExpiration() / 1000)
-                .user(AuthResponse.UserInfo.from(principal))
+                .user(AuthResponse.UserInfo.from(user))
                 .build();
     }
 }

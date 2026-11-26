@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -146,6 +147,9 @@ public class EndpointService {
 
         try {
             java.net.URI uri = new java.net.URI(url);
+            if (uri.getScheme() == null) {
+                throw new ValidationException("Invalid URL: scheme is missing");
+            }
             if (!"https".equalsIgnoreCase(uri.getScheme()) && !"http".equalsIgnoreCase(uri.getScheme())) {
                 throw new ValidationException("Only HTTP and HTTPS URLs are allowed");
             }

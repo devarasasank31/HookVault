@@ -44,7 +44,7 @@ public class DeliveryAttemptResponse {
                 .durationMs(attempt.getDurationMs())
                 .errorMessage(attempt.getErrorMessage())
                 .status(attempt.getStatus())
-                .attemptedAt(attempt.getAttemptedAt())
+                .attemptedAt(attempt.getCreatedAt())
                 .completedAt(attempt.getCompletedAt())
                 .build();
     }

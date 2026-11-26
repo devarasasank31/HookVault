@@ -114,7 +114,9 @@ public class HttpDeliveryClient {
                     responseBody = EntityUtils.toString(entity);
                 }
 
-                response.getHeaders().forEach(h -> responseHeaders.put(h.getName(), h.getValue()));
+                for (org.apache.hc.core5.http.Header header : response.getHeaders()) {
+                    responseHeaders.put(header.getName(), header.getValue());
+                }
 
                 boolean success = statusCode >= 200 && statusCode < 300;
 

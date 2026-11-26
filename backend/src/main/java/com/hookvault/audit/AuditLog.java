@@ -1,12 +1,14 @@
 package com.hookvault.audit;
 
 import com.hookvault.common.BaseEntity;
-import com.hookvault.common.MapToJsonConverter;
 import com.hookvault.user.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.util.Map;
 import java.util.UUID;
@@ -19,6 +21,7 @@ import java.util.UUID;
 })
 @Getter
 @Setter
+@Builder
 public class AuditLog extends BaseEntity {
 
     @Id
@@ -40,11 +43,11 @@ public class AuditLog extends BaseEntity {
     private UUID entityId;
 
     @Column(name = "old_values", columnDefinition = "JSONB")
-    @Convert(converter = MapToJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> oldValues;
 
     @Column(name = "new_values", columnDefinition = "JSONB")
-    @Convert(converter = MapToJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> newValues;
 
     @Column(name = "ip_address", length = 45)

@@ -9,6 +9,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        type.preferred_json_jdbc_type: jsonb
   flyway:
     enabled: false
 

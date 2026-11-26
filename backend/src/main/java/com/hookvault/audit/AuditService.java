@@ -28,8 +28,10 @@ public class AuditService {
             String ipAddress,
             String userAgent
     ) {
+        com.hookvault.user.User user = principal != null ? com.hookvault.user.User.builder().id(principal.getId()).build() : null;
+        
         AuditLog log = AuditLog.builder()
-                .user(principal != null ? new com.hookvault.user.User() {{ setId(principal.getId()); }} : null)
+                .user(user)
                 .action(action)
                 .entityType(entityType)
                 .entityId(entityId)
@@ -51,7 +53,7 @@ public class AuditService {
             Map<String, Object> oldValues,
             Map<String, Object> newValues
     ) {
-        com.hookvault.user.User user = userId != null ? new com.hookvault.user.User() {{ setId(userId); }} : null;
+        com.hookvault.user.User user = userId != null ? com.hookvault.user.User.builder().id(userId).build() : null;
 
         AuditLog log = AuditLog.builder()
                 .user(user)

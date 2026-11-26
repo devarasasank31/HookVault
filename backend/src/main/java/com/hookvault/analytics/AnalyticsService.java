@@ -4,6 +4,7 @@ import com.hookvault.analytics.dto.AnalyticsDashboardResponse;
 import com.hookvault.analytics.dto.EndpointPerformanceResponse;
 import com.hookvault.analytics.dto.VolumeOverTimeResponse;
 import com.hookvault.event.WebhookEventRepository;
+import com.hookvault.endpoint.WebhookEndpoint;
 import com.hookvault.endpoint.WebhookEndpointRepository;
 import com.hookvault.delivery.DeliveryAttemptRepository;
 import com.hookvault.deadletter.DeadLetterEventRepository;
@@ -50,7 +51,8 @@ public class AnalyticsService {
         Double avgResponseTime = attemptRepository.getAverageResponseTimeByUserId(userId);
 
         // Recent events (last 10)
-        List<RecentEventInfo> recentEvents = eventRepository.findRecentEventsByUserId(userId, 10)
+        List<RecentEventInfo> recentEvents = eventRepository
+                .findRecentEventsByUserId(userId, org.springframework.data.domain.PageRequest.of(0, 10))
                 .stream()
                 .map(e -> new RecentEventInfo(
                         e.getId(),

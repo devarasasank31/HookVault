@@ -78,9 +78,8 @@ class AuthServiceTest {
                 .build();
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
-        UserPrincipal principal = UserPrincipal.create(savedUser);
-        when(jwtService.generateAccessToken(principal)).thenReturn("access-token");
-        when(jwtService.generateRefreshToken(principal)).thenReturn("refresh-token");
+        when(jwtService.generateAccessToken(any(UserPrincipal.class))).thenReturn("access-token");
+        when(jwtService.generateRefreshToken(any(UserPrincipal.class))).thenReturn("refresh-token");
         when(jwtService.getAccessTokenExpiration()).thenReturn(3600000L);
 
         // When
@@ -128,8 +127,9 @@ class AuthServiceTest {
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
-        when(jwtService.generateAccessToken(principal)).thenReturn("access-token");
-        when(jwtService.generateRefreshToken(principal)).thenReturn("refresh-token");
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(jwtService.generateAccessToken(any(UserPrincipal.class))).thenReturn("access-token");
+        when(jwtService.generateRefreshToken(any(UserPrincipal.class))).thenReturn("refresh-token");
         when(jwtService.getAccessTokenExpiration()).thenReturn(3600000L);
 
         // When
@@ -159,8 +159,9 @@ class AuthServiceTest {
         when(jwtService.extractUsername(refreshToken)).thenReturn(email);
         when(userDetailsService.loadUserByUsername(email)).thenReturn(principal);
         when(jwtService.isTokenValid(refreshToken, principal)).thenReturn(true);
-        when(jwtService.generateAccessToken(principal)).thenReturn("new-access-token");
-        when(jwtService.generateRefreshToken(principal)).thenReturn("new-refresh-token");
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(jwtService.generateAccessToken(any(UserPrincipal.class))).thenReturn("new-access-token");
+        when(jwtService.generateRefreshToken(any(UserPrincipal.class))).thenReturn("new-refresh-token");
         when(jwtService.getAccessTokenExpiration()).thenReturn(3600000L);
 
         // When

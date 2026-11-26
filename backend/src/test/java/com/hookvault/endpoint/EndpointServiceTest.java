@@ -39,17 +39,16 @@ class EndpointServiceTest {
         endpointService = new EndpointService(endpointRepository, userRepository);
     }
 
+    private UserPrincipal createPrincipal(UUID userId) {
+        User user = User.builder().id(userId).email("test@example.com").passwordHash("hash").active(true).emailVerified(false).build();
+        return UserPrincipal.create(user);
+    }
+
     @Test
     void createEndpoint_shouldCreateAndReturnWithSecret() {
         // Given
         UUID userId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder()
-                .id(userId)
-                .email("test@example.com")
-                .passwordHash("hash")
-                .active(true)
-                .authorities(java.util.Collections.emptyList())
-                .build();
+        UserPrincipal principal = createPrincipal(userId);
 
         User user = User.builder().id(userId).build();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -83,7 +82,7 @@ class EndpointServiceTest {
     void createEndpoint_shouldThrowConflictWhenNameExists() {
         // Given
         UUID userId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        UserPrincipal principal = createPrincipal(userId);
         User user = User.builder().id(userId).build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -102,7 +101,7 @@ class EndpointServiceTest {
     void createEndpoint_shouldThrowValidationForInvalidUrl() {
         // Given
         UUID userId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        UserPrincipal principal = createPrincipal(userId);
         User user = User.builder().id(userId).build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -122,7 +121,7 @@ class EndpointServiceTest {
     void createEndpoint_shouldRejectNonHttpSchemes() {
         // Given
         UUID userId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        UserPrincipal principal = createPrincipal(userId);
         User user = User.builder().id(userId).build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -142,7 +141,7 @@ class EndpointServiceTest {
         // Given
         UUID userId = UUID.randomUUID();
         UUID endpointId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        UserPrincipal principal = createPrincipal(userId);
 
         WebhookEndpoint endpoint = WebhookEndpoint.builder()
                 .id(endpointId)
@@ -169,7 +168,7 @@ class EndpointServiceTest {
         // Given
         UUID userId = UUID.randomUUID();
         UUID endpointId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        UserPrincipal principal = createPrincipal(userId);
 
         WebhookEndpoint endpoint = WebhookEndpoint.builder()
                 .id(endpointId)
@@ -199,7 +198,7 @@ class EndpointServiceTest {
         // Given
         UUID userId = UUID.randomUUID();
         UUID endpointId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        UserPrincipal principal = createPrincipal(userId);
 
         WebhookEndpoint endpoint = WebhookEndpoint.builder()
                 .id(endpointId)
@@ -221,7 +220,7 @@ class EndpointServiceTest {
         // Given
         UUID userId = UUID.randomUUID();
         UUID endpointId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        UserPrincipal principal = createPrincipal(userId);
 
         WebhookEndpoint endpoint = WebhookEndpoint.builder()
                 .id(endpointId)

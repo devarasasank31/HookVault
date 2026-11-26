@@ -30,6 +30,10 @@ public class HmacSigner {
     }
 
     public boolean verify(String payload, String secret, String signature) {
+        if (payload == null || secret == null || secret.isEmpty()
+                || signature == null || signature.isEmpty()) {
+            return false;
+        }
         String expectedSignature = sign(payload, secret);
         return constantTimeEquals(expectedSignature, signature);
     }

@@ -9,6 +9,8 @@ import com.hookvault.security.UserPrincipal;
 import com.hookvault.endpoint.WebhookEndpoint;
 import com.hookvault.endpoint.WebhookEndpointRepository;
 import com.hookvault.user.User;
+import com.hookvault.user.UserRepository;
+import com.hookvault.delivery.DeliveryScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,9 +61,9 @@ class EventServiceTest {
         // Given
         UUID userId = UUID.randomUUID();
         UUID endpointId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        User user = User.builder().id(userId).email("test@example.com").passwordHash("hash").active(true).emailVerified(false).build();
+        UserPrincipal principal = UserPrincipal.create(user);
 
-        User user = User.builder().id(userId).build();
         WebhookEndpoint endpoint = WebhookEndpoint.builder()
                 .id(endpointId)
                 .user(user)
@@ -108,9 +110,9 @@ class EventServiceTest {
         UUID userId = UUID.randomUUID();
         UUID endpointId = UUID.randomUUID();
         UUID eventId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        User user = User.builder().id(userId).email("test@example.com").passwordHash("hash").active(true).emailVerified(false).build();
+        UserPrincipal principal = UserPrincipal.create(user);
 
-        User user = User.builder().id(userId).build();
         WebhookEndpoint endpoint = WebhookEndpoint.builder()
                 .id(endpointId)
                 .user(user)
@@ -154,7 +156,8 @@ class EventServiceTest {
         // Given
         UUID userId = UUID.randomUUID();
         UUID endpointId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        User user = User.builder().id(userId).email("test@example.com").passwordHash("hash").active(true).emailVerified(false).build();
+        UserPrincipal principal = UserPrincipal.create(user);
 
         when(endpointRepository.findByIdAndUserId(endpointId, userId))
                 .thenReturn(Optional.empty());
@@ -174,9 +177,9 @@ class EventServiceTest {
         // Given
         UUID userId = UUID.randomUUID();
         UUID endpointId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        User user = User.builder().id(userId).email("test@example.com").passwordHash("hash").active(true).emailVerified(false).build();
+        UserPrincipal principal = UserPrincipal.create(user);
 
-        User user = User.builder().id(userId).build();
         WebhookEndpoint endpoint = WebhookEndpoint.builder()
                 .id(endpointId)
                 .user(user)
@@ -202,9 +205,9 @@ class EventServiceTest {
         // Given
         UUID userId = UUID.randomUUID();
         UUID endpointId = UUID.randomUUID();
-        UserPrincipal principal = UserPrincipal.builder().id(userId).active(true).build();
+        User user = User.builder().id(userId).email("test@example.com").passwordHash("hash").active(true).emailVerified(false).build();
+        UserPrincipal principal = UserPrincipal.create(user);
 
-        User user = User.builder().id(userId).build();
         WebhookEndpoint endpoint = WebhookEndpoint.builder()
                 .id(endpointId)
                 .user(user)
