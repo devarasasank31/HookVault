@@ -74,12 +74,18 @@ export function EventDetailPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'DELIVERED': return <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />;
-      case 'FAILED': return <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />;
-      case 'PENDING': return <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />;
-      case 'RETRY_SCHEDULED': return <RotateCcw className="h-5 w-5 text-blue-600 dark:text-blue-400" />;
-      case 'DEAD_LETTERED': return <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />;
-      default: return <Clock className="h-5 w-5 text-dark-500" />;
+      case 'DELIVERED':
+        return <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />;
+      case 'FAILED':
+        return <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />;
+      case 'PENDING':
+        return <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />;
+      case 'RETRY_SCHEDULED':
+        return <RotateCcw className="h-5 w-5 text-blue-600 dark:text-blue-400" />;
+      case 'DEAD_LETTERED':
+        return <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />;
+      default:
+        return <Clock className="h-5 w-5 text-dark-500" />;
     }
   };
 
@@ -115,7 +121,6 @@ export function EventDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="flex items-start gap-4">
           <Link to="/events" className="p-2 rounded-lg text-dark-500 hover:text-dark-700 hover:bg-dark-100 dark:hover:bg-dark-800 dark:hover:text-dark-300 mt-1">
@@ -141,7 +146,6 @@ export function EventDetailPage() {
         </div>
       </div>
 
-      {/* Event Info Cards */}
       <div className="grid gap-4 sm:grid-cols-4">
         <div className="card">
           <div className="card-body">
@@ -179,7 +183,6 @@ export function EventDetailPage() {
         </div>
       </div>
 
-      {/* Payload */}
       <div className="card">
         <div className="card-header flex items-center justify-between">
           <h2 className="text-lg font-semibold text-dark-900 dark:text-white">Event Payload</h2>
@@ -198,7 +201,6 @@ export function EventDetailPage() {
         </div>
       </div>
 
-      {/* Delivery Attempts */}
       <div className="card">
         <div className="card-header">
           <h2 className="text-lg font-semibold text-dark-900 dark:text-white">Delivery Attempts</h2>
@@ -272,7 +274,6 @@ export function EventDetailPage() {
                   {expandedAttempt === attempt.id && (
                     <div className="px-6 pb-6 bg-dark-50 dark:bg-dark-800/50 animate-slide-up">
                       <div className="grid gap-4 md:grid-cols-2">
-                        {/* Request */}
                         <div className="space-y-3">
                           <h4 className="text-sm font-medium text-dark-500 dark:text-dark-400 flex items-center gap-2">
                             Request
@@ -295,13 +296,12 @@ export function EventDetailPage() {
                           </div>
                         </div>
 
-                        {/* Response */}
                         <div className="space-y-3">
                           <h4 className="text-sm font-medium text-dark-500 dark:text-dark-400 flex items-center gap-2">
                             Response
                             {attempt.responseBody && (
                               <button
-                                onClick={() => copyToClipboard(attempt.responseBody, 'Response body')}
+                                onClick={() => copyToClipboard(attempt.responseBody || '', 'Response body')}
                                 className="btn-ghost p-1"
                               >
                                 <Copy className="h-3.5 w-3.5" />
@@ -309,7 +309,7 @@ export function EventDetailPage() {
                             )}
                           </h4>
                           {attempt.responseStatus ? (
-                            <>
+                            <div>
                               <div className="flex items-center gap-3">
                                 <span className={cn(
                                   'px-3 py-1 rounded-full text-sm font-mono',
@@ -333,7 +333,7 @@ export function EventDetailPage() {
                                   {attempt.responseBody || '(empty)'}
                                 </pre>
                               </div>
-                            </>
+                            </div>
                           ) : attempt.errorMessage ? (
                             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
                               <pre className="text-sm text-red-700 dark:text-red-300 font-mono">
@@ -346,7 +346,7 @@ export function EventDetailPage() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -12,6 +12,7 @@ import {
   ArrowDownRight,
   TrendingUp,
   ExternalLink,
+  Plus,
 } from 'lucide-react';
 import {
   LineChart,
