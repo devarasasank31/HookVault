@@ -1,18 +1,23 @@
 package com.hookvault.delivery;
 
 import com.hookvault.delivery.dto.DeliveryResult;
+import com.hookvault.delivery.DeliveryScheduler;
 import com.hookvault.endpoint.WebhookEndpoint;
+import com.hookvault.endpoint.WebhookEndpointRepository;
 import com.hookvault.event.WebhookEvent;
+import com.hookvault.event.WebhookEventRepository;
 import com.hookvault.exception.ResourceNotFoundException;
-import lombok.RequiredArgsConstructor;
+import com.hookvault.deadletter.DeadLetterEvent;
+import com.hookvault.deadletter.DeadLetterEventRepository;
+import com.hookvault.retry.RetryService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class DeliveryService {
 
@@ -24,6 +29,33 @@ public class DeliveryService {
     private final HmacSigner hmacSigner;
     private final DeliveryScheduler deliveryScheduler;
     private final RetryService retryService;
+
+    /**
+     * DeliverySchedulerImpl depends on this service (it invokes deliverEvent
+     * from scheduled tasks) while this service asks the scheduler to queue
+     * retries. Injecting the scheduler lazily breaks that constructor cycle;
+     * the scheduler is only touched at delivery time, never during
+     * construction.
+     */
+    public DeliveryService(
+            WebhookEventRepository eventRepository,
+            WebhookEndpointRepository endpointRepository,
+            DeliveryAttemptRepository attemptRepository,
+            DeadLetterEventRepository deadLetterRepository,
+            HttpDeliveryClient httpDeliveryClient,
+            HmacSigner hmacSigner,
+            @Lazy DeliveryScheduler deliveryScheduler,
+            RetryService retryService
+    ) {
+        this.eventRepository = eventRepository;
+        this.endpointRepository = endpointRepository;
+        this.attemptRepository = attemptRepository;
+        this.deadLetterRepository = deadLetterRepository;
+        this.httpDeliveryClient = httpDeliveryClient;
+        this.hmacSigner = hmacSigner;
+        this.deliveryScheduler = deliveryScheduler;
+        this.retryService = retryService;
+    }
 
     @Transactional
     public void deliverEvent(UUID eventId) {
@@ -45,7 +77,7 @@ public class DeliveryService {
             return;
         }
 
-        int attemptNumber = attemptRepository.countByEventId(eventId) + 1;
+        int attemptNumber = (int) attemptRepository.countByEventId(eventId) + 1;
 
         // Create delivery attempt record
         DeliveryAttempt attempt = createAttemptRecord(event, endpoint, attemptNumber);
@@ -80,7 +112,7 @@ public class DeliveryService {
                 .attemptNumber(attemptNumber)
                 .requestUrl(endpoint.getUrl())
                 .requestMethod("POST")
-                .requestHeaders(buildHeaders(endpoint, signature, payload))
+                .requestHeaders(buildHeaders(endpoint, event, signature, attemptNumber))
                 .requestBody(event.getPayload())
                 .status("IN_PROGRESS")
                 .build();
@@ -88,7 +120,7 @@ public class DeliveryService {
         return attemptRepository.save(attempt);
     }
 
-    private java.util.Map<String, String> buildHeaders(WebhookEndpoint endpoint, String signature, String payload) {
+    private java.util.Map<String, String> buildHeaders(WebhookEndpoint endpoint, WebhookEvent event, String signature, int attemptNumber) {
         java.util.Map<String, String> headers = new java.util.HashMap<>(endpoint.getHeaders());
         headers.put("Content-Type", "application/json");
         headers.put("X-HookVault-Event-ID", event.getId().toString());
