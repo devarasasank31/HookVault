@@ -19,6 +19,7 @@ export function formatNumber(num: number): string {
 export function formatDate(dateString: string): string {
   try {
     const date = parseISO(dateString);
+    if (isNaN(date.getTime())) return dateString;
     return formatDistanceToNow(date, { addSuffix: true });
   } catch {
     return dateString;
@@ -28,6 +29,7 @@ export function formatDate(dateString: string): string {
 export function formatDateShort(dateString: string): string {
   try {
     const date = parseISO(dateString);
+    if (isNaN(date.getTime())) return dateString;
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -41,6 +43,7 @@ export function formatDateShort(dateString: string): string {
 export function formatDateTime(dateString: string): string {
   try {
     const date = parseISO(dateString);
+    if (isNaN(date.getTime())) return dateString;
     return date.toLocaleString('en-US', {
       month: 'short',
       day: 'numeric',
