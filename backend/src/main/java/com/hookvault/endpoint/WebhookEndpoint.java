@@ -1,13 +1,14 @@
 package com.hookvault.endpoint;
 
 import com.hookvault.common.BaseEntity;
-import com.hookvault.common.MapToJsonConverter;
 import com.hookvault.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.util.Map;
 import java.util.UUID;
@@ -47,7 +48,7 @@ public class WebhookEndpoint extends BaseEntity {
     private String description;
 
     @Column(name = "headers", columnDefinition = "JSONB")
-    @Convert(converter = MapToJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, String> headers = Map.of();
 
     // Helper methods

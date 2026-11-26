@@ -1,17 +1,19 @@
 package com.hookvault.delivery;
 
 import com.hookvault.common.BaseEntity;
-import com.hookvault.common.MapToJsonConverter;
 import com.hookvault.endpoint.WebhookEndpoint;
 import com.hookvault.event.WebhookEvent;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.util.Map;
 import java.util.UUID;
+import java.time.Instant;
 
 @Entity
 @Table(name = "delivery_attempts", indexes = {
@@ -48,10 +50,11 @@ public class DeliveryAttempt extends BaseEntity {
     private String requestMethod = "POST";
 
     @Column(name = "request_headers", columnDefinition = "JSONB")
-    @Convert(converter = MapToJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, String> requestHeaders;
 
     @Column(name = "request_body", columnDefinition = "JSONB")
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> requestBody;
 
     @Column(name = "response_status")
@@ -61,7 +64,7 @@ public class DeliveryAttempt extends BaseEntity {
     private String responseBody;
 
     @Column(name = "response_headers", columnDefinition = "JSONB")
-    @Convert(converter = MapToJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, String> responseHeaders;
 
     @Column(name = "duration_ms")
@@ -72,6 +75,9 @@ public class DeliveryAttempt extends BaseEntity {
 
     @Column(name = "status", nullable = false, length = 50)
     private String status;
+
+    @Column(name = "attempted_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private Instant attemptedAt;
 
     @Column(name = "completed_at")
     private java.time.Instant completedAt;

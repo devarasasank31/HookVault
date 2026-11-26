@@ -11,22 +11,35 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * DeadLetterEvent exposes helper getters (getUserId, getEndpointId, getEventId)
+ * that shadow the association properties during Spring Data property resolution,
+ * so these queries are written explicitly against the associations.
+ */
 @Repository
 public interface DeadLetterEventRepository extends JpaRepository<DeadLetterEvent, UUID> {
 
-    Page<DeadLetterEvent> findByUserId(UUID userId, Pageable pageable);
+    @Query("SELECT d FROM DeadLetterEvent d WHERE d.user.id = :userId")
+    Page<DeadLetterEvent> findByUserId(@Param("userId") UUID userId, Pageable pageable);
 
-    Page<DeadLetterEvent> findByEndpointId(UUID endpointId, Pageable pageable);
+    @Query("SELECT d FROM DeadLetterEvent d WHERE d.endpoint.id = :endpointId")
+    Page<DeadLetterEvent> findByEndpointId(@Param("endpointId") UUID endpointId, Pageable pageable);
 
-    Page<DeadLetterEvent> findByUserIdAndIsResolvedFalse(UUID userId, Pageable pageable);
+    @Query("SELECT d FROM DeadLetterEvent d WHERE d.user.id = :userId AND d.resolved = false")
+    Page<DeadLetterEvent> findByUserIdAndIsResolvedFalse(@Param("userId") UUID userId, Pageable pageable);
 
-    List<DeadLetterEvent> findByUserIdAndIsResolvedFalse(UUID userId);
+    @Query("SELECT d FROM DeadLetterEvent d WHERE d.user.id = :userId AND d.resolved = false")
+    List<DeadLetterEvent> findByUserIdAndIsResolvedFalse(@Param("userId") UUID userId);
 
-    Optional<DeadLetterEvent> findByEventId(UUID eventId);
+    @Query("SELECT d FROM DeadLetterEvent d WHERE d.event.id = :eventId")
+    Optional<DeadLetterEvent> findByEventId(@Param("eventId") UUID eventId);
 
-    Optional<DeadLetterEvent> findByIdAndUserId(UUID id, UUID userId);
+    @Query("SELECT d FROM DeadLetterEvent d WHERE d.id = :id AND d.user.id = :userId")
+    Optional<DeadLetterEvent> findByIdAndUserId(@Param("id") UUID id, @Param("userId") UUID userId);
 
-    long countByUserIdAndIsResolvedFalse(UUID userId);
+    @Query("SELECT COUNT(d) FROM DeadLetterEvent d WHERE d.user.id = :userId AND d.resolved = false")
+    long countByUserIdAndIsResolvedFalse(@Param("userId") UUID userId);
 
-    long countByEndpointIdAndIsResolvedFalse(UUID endpointId);
+    @Query("SELECT COUNT(d) FROM DeadLetterEvent d WHERE d.endpoint.id = :endpointId AND d.resolved = false")
+    long countByEndpointIdAndIsResolvedFalse(@Param("endpointId") UUID endpointId);
 }

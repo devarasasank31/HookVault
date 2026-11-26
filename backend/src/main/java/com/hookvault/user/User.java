@@ -2,9 +2,9 @@ package com.hookvault.user;
 
 import com.hookvault.common.BaseEntity;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
 
@@ -15,10 +15,11 @@ import java.util.UUID;
 })
 @Getter
 @Setter
+@Builder
 public class User extends BaseEntity {
 
     @Id
-    @UuidGenerator
+    @org.hibernate.annotations.UuidGenerator
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
@@ -36,13 +37,4 @@ public class User extends BaseEntity {
 
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified = false;
-
-    // Helper methods
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
 }

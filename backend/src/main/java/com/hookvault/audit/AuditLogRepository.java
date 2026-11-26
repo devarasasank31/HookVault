@@ -10,10 +10,16 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * AuditLog exposes a getUserId() helper that shadows the user association
+ * during Spring Data property resolution, so these queries are written
+ * explicitly against the association.
+ */
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, UUID> {
 
-    Page<AuditLog> findByUserId(UUID userId, Pageable pageable);
+    @Query("SELECT a FROM AuditLog a WHERE a.user.id = :userId")
+    Page<AuditLog> findByUserId(@Param("userId") UUID userId, Pageable pageable);
 
     Page<AuditLog> findByEntityTypeAndEntityId(String entityType, UUID entityId, Pageable pageable);
 
