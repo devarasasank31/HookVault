@@ -11,3 +11,6 @@ buildNumber.properties
 .project
 .settings/
 bin/
+
+# Downloaded tool archives
+*.zip
